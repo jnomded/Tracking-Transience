@@ -6,40 +6,51 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @State private var selectedTab = 1
 
     var body: some View {
-        VStack {
-            Text("Current Location:")
-                .font(.headline)
-            if let location = trackingManager.currentLocation {
-                Text("Latitude: \(location.coordinate.latitude)")
-                Text("Longitude: \(location.coordinate.longitude)")
-            } else {
-                Text("Location not available")
-            }
-            
-            Divider()
-            
-            Text("Last Photo:")
-                .font(.headline)
-            if let photo = trackingManager.lastPhoto {
-                Image(uiImage: photo)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 200)
-            } else {
-                Text("No photo available")
-            }
+        TabView(selection: $selectedTab) {
+            PhotoGalleryView()
+                .tabItem {
+                    Image(systemName: "photo.on.rectangle")
+                    Text("Gallery")
+                }
+                .tag(0)
+
+            CameraView()
+                .tabItem {
+                    Image(systemName: "camera")
+                    Text("Camera")
+                }
+                .tag(1)
+
+            SettingsView()
+                .tabItem {
+                    Image(systemName: "gear")
+                    Text("Settings")
+                }
+                .tag(2)
         }
+        .accentColor(.white) // Tab bar tint color
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+struct PhotoGalleryView: View {
+    var body: some View {
+        Text("Photo Gallery")
+    }
+}
+
+struct SettingsView: View {
+    var body: some View {
+        Text("Settings")
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
