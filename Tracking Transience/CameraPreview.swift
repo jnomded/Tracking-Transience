@@ -1,15 +1,7 @@
-//
-//  CameraPreview.swift
-//  Tracking Transience
-//
-//  Created by James Edmond on 9/3/24.
-//
-
 import SwiftUI
 import AVFoundation
 
 struct CameraPreviewView: UIViewRepresentable {
-    @Binding var image: UIImage?
     @Binding var isFlashOn: Bool
     @Binding var isUsingFrontCamera: Bool
 
@@ -17,23 +9,20 @@ struct CameraPreviewView: UIViewRepresentable {
     private var currentCameraPosition: AVCaptureDevice.Position = .back
 
     // Public initializer
-    init(image: Binding<UIImage?>, isFlashOn: Binding<Bool>, isUsingFrontCamera: Binding<Bool>) {
-        self._image = image
+    init(isFlashOn: Binding<Bool>, isUsingFrontCamera: Binding<Bool>) {
         self._isFlashOn = isFlashOn
         self._isUsingFrontCamera = isUsingFrontCamera
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
     }
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: UIScreen.main.bounds)
 
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        let previewLayer = AVCaptureVideoPreviewLayer(session:
+ session)
         previewLayer.videoGravity = .resizeAspectFill
         previewLayer.frame = view.bounds
         view.layer.addSublayer(previewLayer)
+
 
         setupCamera()
 
@@ -46,7 +35,9 @@ struct CameraPreviewView: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIView, context: Context) {
         updateFlashMode()
+        // Check if the current camera position matches the desired camera position
         if isUsingFrontCamera != (currentCameraPosition == .front) {
+            // If not, switch the camera
             context.coordinator.switchCamera()
         }
     }
@@ -60,9 +51,11 @@ struct CameraPreviewView: UIViewRepresentable {
 
         if session.canAddInput(input) {
             session.addInput(input)
+
         }
 
         let output = AVCapturePhotoOutput()
+
         if session.canAddOutput(output) {
             session.addOutput(output)
         }
@@ -91,12 +84,17 @@ struct CameraPreviewView: UIViewRepresentable {
                 parent.session.removeInput(input)
             }
 
+            // Update the current camera position before setting up the new camera
             parent.currentCameraPosition = parent.currentCameraPosition == .back ? .front : .back
             parent.setupCamera()
         }
     }
 
-    static func dismantleUIView(_ uiView: UIView, coordinator: ()) {
-        uiView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
+        coordinator.parent.session.stopRunning()
     }
 }

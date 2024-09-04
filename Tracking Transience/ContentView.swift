@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Tracking Transience
-//
-//  Created by James Edmond on 8/26/24.
-//
-
 import SwiftUI
 
 struct ContentView: View {
