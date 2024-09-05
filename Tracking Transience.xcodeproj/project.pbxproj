@@ -15,6 +15,9 @@
 		3B520CF72C88177E006BFA16 /* RotationHandlingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B520CF62C88177E006BFA16 /* RotationHandlingViewController.swift */; };
 		3B851B352C87B442003E5562 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B851B342C87B442003E5562 /* CameraView.swift */; };
 		3B851B372C87B472003E5562 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B851B362C87B46F003E5562 /* CameraPreview.swift */; };
+		3BDFD3992C88FBF7009D8494 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BDFD3982C88FBF4009D8494 /* Photo.swift */; };
+		3BDFD39B2C88FCBB009D8494 /* PhotoGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BDFD39A2C88FCB5009D8494 /* PhotoGalleryView.swift */; };
+		3BDFD39D2C890A58009D8494 /* PhotoPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BDFD39C2C890A54009D8494 /* PhotoPreview.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +30,9 @@
 		3B520CF62C88177E006BFA16 /* RotationHandlingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotationHandlingViewController.swift; sourceTree = "<group>"; };
 		3B851B342C87B442003E5562 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		3B851B362C87B46F003E5562 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		3BDFD3982C88FBF4009D8494 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		3BDFD39A2C88FCB5009D8494 /* PhotoGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryView.swift; sourceTree = "<group>"; };
+		3BDFD39C2C890A54009D8494 /* PhotoPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreview.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +70,10 @@
 				3B851B342C87B442003E5562 /* CameraView.swift */,
 				3B851B362C87B46F003E5562 /* CameraPreview.swift */,
 				3B520CE62C880877006BFA16 /* Item.swift */,
+				3BDFD39A2C88FCB5009D8494 /* PhotoGalleryView.swift */,
 				3B520CF62C88177E006BFA16 /* RotationHandlingViewController.swift */,
+				3BDFD39C2C890A54009D8494 /* PhotoPreview.swift */,
+				3BDFD3982C88FBF4009D8494 /* Photo.swift */,
 				3B47EEFA2C7D443A002029FD /* Assets.xcassets */,
 				3B47EEFC2C7D443A002029FD /* Preview Content */,
 			);
@@ -149,11 +158,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3BDFD3992C88FBF7009D8494 /* Photo.swift in Sources */,
+				3BDFD39D2C890A58009D8494 /* PhotoPreview.swift in Sources */,
 				3B520CE72C880879006BFA16 /* Item.swift in Sources */,
 				3B47EEF72C7D4439002029FD /* ContentView.swift in Sources */,
 				3B851B372C87B472003E5562 /* CameraPreview.swift in Sources */,
 				3B47EEF52C7D4439002029FD /* Tracking_TransienceApp.swift in Sources */,
 				3B851B352C87B442003E5562 /* CameraView.swift in Sources */,
+				3BDFD39B2C88FCBB009D8494 /* PhotoGalleryView.swift in Sources */,
 				3B520CF72C88177E006BFA16 /* RotationHandlingViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

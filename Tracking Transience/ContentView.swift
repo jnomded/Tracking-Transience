@@ -1,6 +1,8 @@
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab = 1
 
     var body: some View {
@@ -27,12 +29,7 @@ struct ContentView: View {
                 .tag(2)
         }
         .accentColor(.white) // Tab bar tint color
-    }
-}
-
-struct PhotoGalleryView: View {
-    var body: some View {
-        Text("Photo Gallery")
+        .environment(\.modelContext, modelContext)
     }
 }
 

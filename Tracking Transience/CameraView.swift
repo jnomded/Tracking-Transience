@@ -1,13 +1,15 @@
 import SwiftUI
-import SwiftData
 import AVFoundation
 
 struct CameraView: View {
-    @State private var image: UIImage?
+    @Environment(\.modelContext) private var modelContext
     @State private var isFlashOn = false
     @State private var isUsingFrontCamera = false
+    @State private var capturedImage: UIImage? = nil
     @State private var isLandscape = UIDevice.current.orientation.isLandscape
-
+    @State private var isPhotoPreviewPresented = false
+    @State private var cameraPreview: CameraPreviewView?
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -18,7 +20,10 @@ struct CameraView: View {
                             isLandscape = newOrientation.isLandscape
                         }
                     }
-
+                    .onAppear {
+                        cameraPreview = CameraPreviewView(isFlashOn: $isFlashOn, isUsingFrontCamera: $isUsingFrontCamera)
+                    }
+                
                 VStack {
                     Spacer()
                     
@@ -34,7 +39,7 @@ struct CameraView: View {
                                     .rotationEffect(.degrees(-90))
                             }
                             .padding(.leading, 28) // Reduced padding
-
+                            
                             Spacer()
                             
                             // Capture Button
@@ -70,7 +75,7 @@ struct CameraView: View {
                             }
                             .padding(.trailing, 16) // Reduced padding
                         }
-                        .padding(.bottom, geometry.safeAreaInsets.bottom - 16) // Reduced bottom padding
+                        .padding(.bottom, geometry.safeAreaInsets.bottom - 50) // Reduced bottom padding
                     } else {
                         HStack {
                             // Flash Button
@@ -83,9 +88,9 @@ struct CameraView: View {
                             }
                             .padding(.leading, 28) // Reduced padding
                             .padding(.bottom, geometry.safeAreaInsets.bottom - 16) // Reduced bottom padding
-
+                            
                             Spacer()
-
+                            
                             // Capture Button
                             Button(action: {
                                 capturePhoto()
@@ -105,10 +110,10 @@ struct CameraView: View {
                                     )
                                     .shadow(radius: 10)
                             }
-                            .padding(.bottom, geometry.safeAreaInsets.bottom - 16) // Reduced bottom padding
-
+                            .padding(.bottom, geometry.safeAreaInsets.bottom - 50) // Reduced bottom padding
+                            
                             Spacer()
-
+                            
                             // Switch Camera Button
                             Button(action: {
                                 isUsingFrontCamera.toggle()
@@ -135,16 +140,44 @@ struct CameraView: View {
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                     .rotationEffect(.degrees(isLandscape ? 90 : 0))
                     .animation(.easeInOut, value: isLandscape)
+                
+                if isPhotoPreviewPresented, let image = capturedImage {
+                    PhotoPreviewView(image: image, onUsePhoto: { selectedImage in
+                        savePhoto(selectedImage)
+                        isPhotoPreviewPresented = false
+                    }, onRetake: {
+                        isPhotoPreviewPresented = false
+                    })
+                    .background(Color.black.opacity(0.8).edgesIgnoringSafeArea(.all))
+                    .transition(.opacity)
+                }
             }
         }
     }
-
+    
     private func capturePhoto() {
-        // Call the capture photo method from CameraPreviewView
-        // You need to provide a way to trigger this method
+        cameraPreview?.capturePhoto { image in
+            if let image = image {
+                capturedImage = image
+                isPhotoPreviewPresented = true
+            } else {
+                print("Failed to capture photo")
+            }
+        }
+    }
+    
+    private func savePhoto(_ image: UIImage) {
+        let photo = Photo(image: image, timestamp: Date())
+        modelContext.insert(photo)
+        
+        do {
+            try modelContext.save()
+            print("Photo saved successfully")
+        } catch {
+            print("Failed to save photo: \(error)")
+        }
     }
 }
-
 // A custom ViewModifier to detect orientation changes
 struct RotateModifier: ViewModifier {
     let action: (UIDeviceOrientation) -> Void
