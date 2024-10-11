@@ -6,13 +6,14 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-final class Item {
-    var timestamp: Date
-    
-    init(timestamp: Date) {
-        self.timestamp = timestamp
-    }
+
+// If i decide to use SwiftData in the future add:
+// import SwiftData
+// @Model
+// final class Item { ... }
+
+
+struct Item {
+    let timestamp: Date
 }

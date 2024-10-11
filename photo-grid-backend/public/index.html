@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surveillance Photo Sharing</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .frame {
+            width: 100%;
+            background-color: black;
+        }
+
+        #topFrame, #bottomFrame {
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #centerFrame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100% - 300px);
+            overflow-y: hidden; /* hides the vertical scrollbar */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Chrome/Safari scrollbar removal */
+        #centerFrame::-webkit-scrollbar {
+            display: none;
+        }
+
+        #photoGrid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            width: 1000px;
+            gap: 0;
+        }
+
+        .photo-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        #fullscreenView {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #fullscreenImage {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            text-align: center;
+        }
+
+        input, button {
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* For Delete button */
+        .delete-button {
+            background-color: #FF4444; /* red*/
+        }
+    </style>
+</head>
+<body>
+
+
+    <div id="topFrame" class="frame">
+        <div>
+            <input type="text" id="personalCode" placeholder="Enter your id">
+            <button onclick="fetchPhotos()">View Photos</button>
+        </div>
+    </div>
+
+
+    <div id="centerFrame">
+        <div id="photoGrid"></div>
+    </div>
+
+    <!-- Bottom frame: blank for aesthetics, plus a delete button -->
+    <div id="bottomFrame" class="frame">
+        <button class="delete-button" onclick="deletePhotos()">Erase User</button>
+    </div>
+
+    <!-- Fullscreen view for a single photo -->
+    <div id="fullscreenView">
+        <img id="fullscreenImage" src="" alt="Full-screen photo">
+        <div class="overlay"></div>
+    </div>
+
+    <script>
+        let currentPhotos = [];
+        let displayedPhotos = [];
+        let refreshInterval = null;
+
+        function fetchPhotos() {
+            const personalCode = document.getElementById('personalCode').value.trim();
+            const photoGrid = document.getElementById('photoGrid');
+            photoGrid.innerHTML = '';
+
+            if (!personalCode) {
+                alert('Please enter your personal code.');
+                return;
+            }
+
+            fetch(`/photos/${personalCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.photos && data.photos.length > 0) {
+                        currentPhotos = data.photos;
+                        displayRandomPhotos();
+
+                        // Refresh the grid every 10 seconds
+                        if (refreshInterval) clearInterval(refreshInterval);
+                        refreshInterval = setInterval(displayRandomPhotos, 10000);
+                    } else {
+                        photoGrid.innerHTML = '<p>No photos found for this code.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching photos:', error);
+                    photoGrid.innerHTML = '<p>Error fetching photos. Please try again.</p>';
+                });
+        }
+
+        function displayRandomPhotos() {
+            const photoGrid = document.getElementById('photoGrid');
+            photoGrid.innerHTML = '';
+
+            displayedPhotos = getRandomPhotos(48);
+            displayedPhotos.forEach((photo, index) => {
+                const container = document.createElement('div');
+                container.className = 'photo-container';
+
+                const img = document.createElement('img');
+                img.src = photo.url;
+                container.appendChild(img);
+
+                container.addEventListener('click', () => openFullscreen(index));
+                photoGrid.appendChild(container);
+            });
+        }
+
+        function getRandomPhotos(count) {
+            const shuffled = [...currentPhotos].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        function openFullscreen(index) {
+            const fullscreenView = document.getElementById('fullscreenView');
+            const fullscreenImage = document.getElementById('fullscreenImage');
+            const overlay = document.querySelector('.overlay');
+            const photo = displayedPhotos[index];
+
+            fullscreenImage.src = photo.url;
+            fullscreenView.style.display = 'flex';
+
+            const date = extractPhotoDate(photo.metadata);
+            overlay.textContent = date ? `Date: ${date}` : 'No metadata available';
+
+            fullscreenView.addEventListener('click', closeFullscreen);
+        }
+
+        function closeFullscreen() {
+            document.getElementById('fullscreenView').style.display = 'none';
+        }
+
+        function extractPhotoDate(metadata) {
+            if (!metadata) return null;
+            const parsed = parseMetadata(metadata);
+            return parsed.datetime || null;
+        }
+
+        function parseMetadata(metadata) {
+            const result = {};
+            metadata.split('|').forEach(segment => {
+                const [key, value] = segment.split(':');
+                if (key && value) {
+                    result[key.trim()] = value.trim();
+                }
+            });
+            return result;
+        }
+
+        // Called when the user presses the delete button
+        function deletePhotos() {
+            const personalCode = document.getElementById('personalCode').value.trim();
+            if (!personalCode) {
+                alert('Please enter your personal code first');
+                return;
+            }
+
+            // Optionally ask for confirmation
+            if (!confirm('Are you sure you want to all proof of this user?')) {
+                return;
+            }
+
+            fetch(`/photos/${personalCode}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    alert('Photos deleted successfully.');
+
+                    // Clear out the grid
+                    currentPhotos = [];
+                    displayedPhotos = [];
+                    document.getElementById('photoGrid').innerHTML = '';
+                })
+                .catch(error => {
+                    console.error('Error deleting photos:', error);
+                    alert('Error deleting photos.');
+                });
+        }
+    </script>
+</body>
+</html>
