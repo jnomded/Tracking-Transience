@@ -1,0 +1,1 @@
+In contextview, change local ip to that of your machines. Run server.js and open application, generate a code for yourself and upload as many photos as you'd like. Delete user history when you're done.
